@@ -4,7 +4,7 @@ const { getAllProperties, getPropertyById } = require('../controllers/propertyCo
 
 const router = express.Router();
 
-router.route('/properties').get(getAllProperties);  // Public route for all users
-router.route('/properties/:id').get(getPropertyById); // Public route for property details
+router.route('/').get(getAllProperties);  
+router.route('/:id').get(getPropertyById); 
 
 module.exports = router;

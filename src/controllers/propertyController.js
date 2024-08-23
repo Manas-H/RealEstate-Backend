@@ -3,7 +3,7 @@ const Property = require('../models/Property');
 
 exports.getAllProperties = async (req, res) => {
     try {
-        const properties = await Property.find();
+        const properties = await Property.find().select('-interestedClients');
         res.json(properties);
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
@@ -12,7 +12,7 @@ exports.getAllProperties = async (req, res) => {
 
 exports.getPropertyById = async (req, res) => {
     try {
-        const property = await Property.findById(req.params.id);
+        const property = await Property.findById(req.params.id).select('-interestedClients'); 
         if (property) {
             res.json(property);
         } else {

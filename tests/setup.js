@@ -4,10 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 before(async () => {
-    await mongoose.connect(process.env.TEST_MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.TEST_MONGO_URI);
 });
 
 after(async () => {

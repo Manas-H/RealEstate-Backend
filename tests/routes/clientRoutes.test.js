@@ -8,7 +8,7 @@
 
     chai.use(chaiHttp);
 
-    describe('Client Controller', () => {
+    describe('Client Routes', () => {
         let clientToken;
         let propertyId;
 

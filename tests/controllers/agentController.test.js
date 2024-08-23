@@ -1,64 +1,68 @@
-const request = require('supertest');
-const app = require('../../server');
-// const { expect } = require('chai');
-import { expect } from 'chai';
+(async () => {
+    const chai = await import('chai');
+    const chaiHttp = await import('chai-http');
+    const server = await import('../../server'); // Adjust path as needed
+    const Agent = await import('../../models/Agent');
+    const Property = await import('../../models/Property');
+    const { expect } = chai;
 
-describe('Agent Controller', () => {
-    let agentToken, propertyId;
+    chai.use(chaiHttp);
 
-    before(async () => {
-        const agent = await request(app)
-            .post('/api/agent/register')
-            .send({ name: 'Agent', email: 'agent@agent.com', password: 'password123' });
+    describe('Agent Controller', () => {
+        let agentToken;
+        let propertyId;
 
-        agentToken = agent.body.token;
+        before(async () => {
+            await Agent.default.deleteMany({});
+            const agent = await Agent.default.create({ name: 'Test Agent', email: 'agent@test.com', password: 'password123' });
+            const res = await chai.request(server.default)
+                .post('/api/auth/agent/login')
+                .send({ email: 'agent@test.com', password: 'password123' });
+            agentToken = res.body.token;
 
-        const property = await request(app)
-            .post('/api/agent/properties')
-            .set('Authorization', `Bearer ${agentToken}`)
-            .send({
-                title: 'Property Title',
-                description: 'Property Description',
-                price: 500000,
-                location: 'City Center'
+            await Property.default.deleteMany({});
+            const property = await Property.default.create({
+                title: 'Test Property',
+                description: 'Test',
+                price: 100000,
+                location: 'Test City',
+                agent: agent._id
             });
+            propertyId = property._id;
+        });
 
-        propertyId = property.body._id;
-    });
+        it('should get all properties for an agent', async () => {
+            const res = await chai.request(server.default)
+                .get('/api/agents/properties')
+                .set('Authorization', `Bearer ${agentToken}`);
+            expect(res).to.have.status(200);
+            expect(res.body).to.be.an('array');
+        });
 
-    it('should create a property', async () => {
-        const res = await request(app)
-            .post('/api/agent/properties')
-            .set('Authorization', `Bearer ${agentToken}`)
-            .send({
-                title: 'New Property',
-                description: 'New Description',
-                price: 600000,
-                location: 'Downtown'
-            });
-        expect(res.status).to.equal(201);
-        expect(res.body).to.have.property('title');
-    });
+        it('should create a new property', async () => {
+            const res = await chai.request(server.default)
+                .post('/api/agents/properties')
+                .set('Authorization', `Bearer ${agentToken}`)
+                .send({ title: 'New Property', description: 'New', price: 200000, location: 'New City' });
+            expect(res).to.have.status(201);
+            expect(res.body).to.have.property('title', 'New Property');
+        });
 
-    it('should update a property', async () => {
-        const res = await request(app)
-            .put(`/api/agent/properties/${propertyId}`)
-            .set('Authorization', `Bearer ${agentToken}`)
-            .send({
-                title: 'Updated Property',
-                description: 'Updated Description',
-                price: 700000,
-                location: 'Uptown'
-            });
-        expect(res.status).to.equal(200);
-        expect(res.body.title).to.equal('Updated Property');
-    });
+        it('should update an existing property', async () => {
+            const res = await chai.request(server.default)
+                .put(`/api/agents/properties/${propertyId}`)
+                .set('Authorization', `Bearer ${agentToken}`)
+                .send({ title: 'Updated Property', description: 'Updated', price: 150000, location: 'Updated City' });
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property('title', 'Updated Property');
+        });
 
-    it('should delete a property', async () => {
-        const res = await request(app)
-            .delete(`/api/agent/properties/${propertyId}`)
-            .set('Authorization', `Bearer ${agentToken}`);
-        expect(res.status).to.equal(200);
-        expect(res.body.message).to.equal('Property removed');
+        it('should delete a property', async () => {
+            const res = await chai.request(server.default)
+                .delete(`/api/agents/properties/${propertyId}`)
+                .set('Authorization', `Bearer ${agentToken}`);
+            expect(res).to.have.status(200);
+            expect(res.body).to.have.property('message', 'Property removed');
+        });
     });
-});
+})();

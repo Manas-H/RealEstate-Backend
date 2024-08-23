@@ -22,6 +22,9 @@ app.use('/api/clients', require('./src/routes/clientRoutes'));
 app.use('/api/properties', require('./src/routes/propertyRoutes'));
 app.use('/api/auth', require('./src/routes/authRoutes'));
 
-// Start the server
+// Start the server and save it to a variable
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Export the server instance for use in testing
+module.exports = server;

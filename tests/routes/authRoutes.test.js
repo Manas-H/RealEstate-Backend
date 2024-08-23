@@ -8,8 +8,8 @@
 
     chai.use(chaiHttp);
 
-    describe('Auth Controller', () => {
-        it('should register and login an agent', async () => {
+    describe('Auth Routes', () => {
+        it('should register and login agent', async () => {
             const res = await chai.request(server.default)
                 .post('/api/auth/agent/register')
                 .send({ name: 'Test Agent', email: 'agent@test.com', password: 'password123' });
@@ -22,7 +22,7 @@
             expect(loginRes.body).to.have.property('token');
         });
 
-        it('should register and login a client', async () => {
+        it('should register and login client', async () => {
             const res = await chai.request(server.default)
                 .post('/api/auth/client/register')
                 .send({ name: 'Test Client', email: 'client@test.com', password: 'password123' });
