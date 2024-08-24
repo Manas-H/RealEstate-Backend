@@ -7,7 +7,7 @@ dotenv.config();
 
 exports.protect = async (req, res, next) => {
   let token;
-  console.log("Authorization Header:", req.headers.authorization);
+  // console.log("Authorization Header:", req.headers.authorization);
 
   if (
     req.headers.authorization &&
@@ -15,12 +15,12 @@ exports.protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(" ")[1].replace(/"/g, "").trim();
-      console.log("Extracted Token:", token); // Log the token to ensure it's extracted
+      // console.log("Extracted Token:", token); 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user =
         (await Agent.findById(decoded.id)) ||
         (await Client.findById(decoded.id));
-      next();
+      next(); 
     } catch (error) {
       console.error("Token Verification Error:", error);
       res.status(401).json({ message: "Not authorized, token failed" });

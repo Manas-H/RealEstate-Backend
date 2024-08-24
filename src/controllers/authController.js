@@ -6,20 +6,22 @@ const { validationResult } = require("express-validator");
 
 dotenv.config();
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" }); // Token expiration time
+// Generate token including id and role
+const generateToken = (id, role, name) => {
+  return jwt.sign({ id, role, name }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 const handleRegistration = async (model, req, res) => {
   try {
-    const { name, email, number, password, licenseNumber } = req.body; // Extracting licenseNumber
-    // Validation of input data should be done here
+    const { name, email, number, password, licenseNumber, role } = req.body;
+    
+    // Validate input data
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Create a new user based on the model
+    // Create a new user based on the model (Agent or Client)
     const user = await model.create({
       name,
       email,
@@ -34,9 +36,10 @@ const handleRegistration = async (model, req, res) => {
       name: user.name,
       email: user.email,
       number: user.number,
-      token: generateToken(user._id),
+      role: user.role, // Ensure role is included in response
+      token: generateToken(user._id, user.role), // Include role in the token
     });
-    console.log("regiistration sucess");
+    console.log("Registration successful");
   } catch (error) {
     if (error.code === 11000) {
       // Handle duplicate key error
@@ -89,8 +92,8 @@ const handleLogin = async (model, req, res) => {
       name: user.name,
       email: user.email,
       number: user.number,
-      role: user.role,
-      token: generateToken(user._id),
+      role: user.role, // Include role in the response
+      token: generateToken(user._id, user.role, user.name), 
     });
     console.log("Login successful");
   } catch (error) {
