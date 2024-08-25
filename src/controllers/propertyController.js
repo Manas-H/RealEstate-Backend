@@ -14,6 +14,7 @@ exports.getPropertyById = async (req, res) => {
     try {
         const property = await Property.findById(req.params.id).select('-interestedClients'); 
         if (property) {
+            // console.log(property)
             res.json(property);
         } else {
             res.status(404).json({ message: 'Property not found' });

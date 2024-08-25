@@ -11,8 +11,8 @@ const PropertySchema = new mongoose.Schema({
     propertyType: { type: String },  
     status: { type: String, default: "available" },  
     geoLocation: { 
-        latitude: { type: Number },
-        longitude: { type: Number }
+        lat: { type: Number },
+        lng: { type: Number }
     }
 }, { timestamps: true });  
 
